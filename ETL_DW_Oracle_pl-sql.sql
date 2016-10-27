@@ -1,11 +1,11 @@
 CREATE TABLE "Data_Warehouse_Facts" (
 	"date_id" INT,
 	"customer_id" INT,
-	"media_id" varchar,
+	"track_id" varchar,
 	"geo_area_id" varchar,
 	"session_id" varchar,
 	"vendor_id" INT,
-	constraint DATA_WAREHOUSE_FACTS_PK PRIMARY KEY ("date_id","customer_id","media_id","geo_area_id","session_id")
+	constraint DATA_WAREHOUSE_FACTS_PK PRIMARY KEY ("date_id","customer_id","track_id","geo_area_id","session_id")
 CREATE sequence "DATA_WAREHOUSE_FACTS_SEQ"
 /
 CREATE trigger "BI_DATA_WAREHOUSE_FACTS"
@@ -64,9 +64,8 @@ end;
 )
 /
 CREATE TABLE "Media_Content_Dimension" (
-	"media_id" varchar,
 	"track_id" varchar,
-	"ISRC" varchar,
+	"isrc" varchar,
 	"filemane" varchar,
 	"artist_name" varchar,
 	"track_name" varchar,
@@ -80,14 +79,14 @@ CREATE TABLE "Media_Content_Dimension" (
 	"item_type" INT,
 	"media_type" INT,
 	"publish_date" DATE,
-	constraint MEDIA_CONTENT_DIMENSION_PK PRIMARY KEY ("media_id")
+	constraint MEDIA_CONTENT_DIMENSION_PK PRIMARY KEY ("track_id")
 CREATE sequence "MEDIA_CONTENT_DIMENSION_SEQ"
 /
 CREATE trigger "BI_MEDIA_CONTENT_DIMENSION"
   before insert on "MEDIA_CONTENT_DIMENSION"
   for each row
 begin
-  select "MEDIA_CONTENT_DIMENSION_SEQ".nextval into :NEW."media_id" from dual;
+  select "MEDIA_CONTENT_DIMENSION_SEQ".nextval into :NEW."track_id" from dual;
 end;
 /
 
@@ -95,11 +94,11 @@ end;
 /
 CREATE TABLE "Session_Dimension" (
 	"session_id" varchar,
+	"track_uri" varchar,
 	"srteam_os" varchar,
 	"srteam_device" varchar,
 	"srteam_cached" varchar,
 	"source" varchar,
-	"track_uri" varchar,
 	"stream_source_uri" varchar,
 	"stream_timestamp" INT,
 	"stream_start_position" INT,
@@ -109,7 +108,6 @@ CREATE TABLE "Session_Dimension" (
 	"offline" INT,
 	"action_type" INT,
 	"end_reason_type" INT,
-	"stream_length" INT,
 	constraint SESSION_DIMENSION_PK PRIMARY KEY ("session_id")
 CREATE sequence "SESSION_DIMENSION_SEQ"
 /
@@ -125,10 +123,10 @@ end;
 /
 CREATE TABLE "Geographical_Dimension" (
 	"geo_area_id" varchar,
-	"country_code" varchar,
-	"utc_offset" varchar,
 	"postal_code" varchar,
 	"region_code" varchar,
+	"country_code" varchar,
+	"utc_offset" varchar,
 	constraint GEOGRAPHICAL_DIMENSION_PK PRIMARY KEY ("geo_area_id")
 CREATE sequence "GEOGRAPHICAL_DIMENSION_SEQ"
 /
@@ -144,12 +142,6 @@ end;
 /
 ALTER TABLE "Data_Warehouse_Facts" ADD CONSTRAINT "Data_Warehouse_Facts_fk0" FOREIGN KEY ("date_id") REFERENCES Date_Dimension("date_id");
 ALTER TABLE "Data_Warehouse_Facts" ADD CONSTRAINT "Data_Warehouse_Facts_fk1" FOREIGN KEY ("customer_id") REFERENCES Customer_Dimension("customer_id");
-ALTER TABLE "Data_Warehouse_Facts" ADD CONSTRAINT "Data_Warehouse_Facts_fk2" FOREIGN KEY ("media_id") REFERENCES Media_Content_Dimension("media_id");
+ALTER TABLE "Data_Warehouse_Facts" ADD CONSTRAINT "Data_Warehouse_Facts_fk2" FOREIGN KEY ("track_id") REFERENCES Media_Content_Dimension("track_id");
 ALTER TABLE "Data_Warehouse_Facts" ADD CONSTRAINT "Data_Warehouse_Facts_fk3" FOREIGN KEY ("geo_area_id") REFERENCES Geographical_Dimension("geo_area_id");
 ALTER TABLE "Data_Warehouse_Facts" ADD CONSTRAINT "Data_Warehouse_Facts_fk4" FOREIGN KEY ("session_id") REFERENCES Session_Dimension("session_id");
-
-
-
-
-
-
